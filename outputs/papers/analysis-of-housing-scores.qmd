@@ -3,116 +3,141 @@ title: "Tutorial 2"
 author: "Iz Leitch"
 format: pdf
 ---
+```{r}
+#this loads libraries
+#|echo : FALSE
+library(tidyverse)
+library(janitor)
+library(opendatatoronto)
+library(dplyr)
+library(scales)
+```
+
 
 ## Introduction
 
 This is the paper about rentsafe toronto housing scores
 
+
+
 ## Running Code
 
 ```{r}
-
-```
-```{r}
+#this loads data from the raw data file
+#| echo: FALSE
 data <- 
   read.csv(here::here("inputs/data/raw_data.csv"))
 
-options(repr.plot.width = 10, repr.plot.height =2)
-
+#This turns SCORE, YEAR_EVALUATED, and YEAR_BUILT into numeric and adds them to the dataset
 data <- 
   data |>
   mutate(score = as.numeric(SCORE),
-         year_eval = as.numeric(YEAR_EVALUATED))
-
-mean_ward <- 
-  data |>
-  group_by(WARD) |>
-  summarise(mean_score = mean(score))
-
-mean_ward
-
-
-mean_year_eval <- 
-  data |>
-  group_by(year_eval) |>
-  summarise(mean_score = mean(score))
-
-mean_year_eval
+         year_eval = as.numeric(YEAR_EVALUATED),
+         year_built = as.numeric(YEAR_BUILT))
 ```
 
 ```{r}
+# Graphing score by Year, Property type: Private
+#| echo: false
 
+data_average_property_type_private <-
+  data |>
+  filter(PROPERTY_TYPE == "PRIVATE") |>
+  group_by(year_eval) |>
+  summarise(mean = mean(score / 100))
 
-filter()
-mean(score)
-
-
-mean_data
-
-# The Base of the Key Offenders
-data|> ggplot(aes
-              (x=c(year_built<-as.numeric(YEAR_BUILT)), 
-               y = c((score<-as.numeric(SCORE))/100), 
-               color = PROPERTY_TYPE)) + 
-  scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
-  scale_x_continuous(breaks = c(1800, 1850, 1900, 1950, 2000, 2050)) +
-  theme(legend.key.size = unit(0.1, "cm"))+
-  theme(legend.position = "bottom") +
-  geom_point() 
-
-
-data|> ggplot(aes(x=c(ward<-as.numeric(WARD)), y = c((score<-as.numeric(SCORE))/100), color = PROPERTY_TYPE)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
-  geom_point()
-
-data|> filter(PROPERTY_TYPE== "SOCIAL HOUSING")|>ggplot(aes(x=c(ward<-as.numeric(WARD)),y = score, fill = PROPERTY_TYPE)) +
-  geom_line(stat ="identity")
-
-# Key Offender Below
-data|> 
-  ggplot(aes(x=year_eval, y = mean_year_eval/100)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
-  scale_x_continuous(breaks = c(1800, 1850, 1900, 1950, 2000, 2050)) +
-  geom_line()
-
-
-data|> 
-  ggplot(aes(x=WARD, y = mean_ward/100, color = WARD)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
-  geom_point()
-
-#Functional Key Offender Below
-data|> 
-  ggplot(aes(x= c(year_eval<-as.numeric(YEAR_EVALUATED)), y = c((score<-as.numeric(SCORE))/100), color = WARD)) + 
-  scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
-  scale_x_continuous(breaks = c(201 7, 2018, 2019, 2020, 2021)) +
-  geom_point()
-
-
-data|> 
-  ggplot(aes(x= c(year_eval<-as.numeric(YEAR_EVALUATED)), y = c((score<-as.numeric(SCORE))/100), color = WARD)) + 
-  #scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
-  #scale_x_continuous(breaks = c(2017, 2018, 2019, 2020, 2021)) +
-  geom_line()
-
-data|>
-  filter(WARD == "19") |>
-  ggplot(aes(x=c(year_built<-as.numeric(YEAR_BUILT)), y = c((score<-as.numeric(SCORE))/100), color = PROPERTY_TYPE)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
-  scale_x_continuous(breaks = c(1800, 1850, 1900, 1950, 2000, 2050)) +
-  geom_point()
-
-data|>
-  group_by(PROPERTY_TYPE)|>
-  ggplot(aes(x = WARD, y = mean_data, color = PROPERTY_TYPE))+
-  geom_line()+ theme_minimal()
-
+data |>
+  filter(PROPERTY_TYPE == "PRIVATE")|>
+  ggplot(aes(x = year_eval, 
+             y = score / 100)) + 
+  scale_y_continuous(labels = percent_format(), 
+                      limits = c(0, 1)) +
+  geom_count(aes(color = "red")) +
+  geom_line(data = data_average_property_type_private, aes(x = year_eval, y = mean)) + 
+  labs(
+    title = "Changes in Score of Private Housing over a Period of 5 Years",
+    x = "Year", 
+    y = "Score Evaluations in Percent",
+    color = ""
+  )
   
-group_by()
+```
+```{r}
+# Graphing score by Year, Property type: Social Housing
+#| echo: false
 
-mean_data
+data_average_property_type_social <-
+  data |>
+  filter(PROPERTY_TYPE == "SOCIAL HOUSING") |>
+  group_by(year_eval) |>
+  summarise(mean = mean(score / 100))
 
+data |>
+  filter(PROPERTY_TYPE == "SOCIAL HOUSING")|>
+  ggplot(aes(x = year_eval, 
+             y = score / 100)) + 
+  scale_y_continuous(labels = percent_format(), 
+                      limits = c(0, 1)) +
+  geom_count(aes(color="red")) +
+  geom_line(data = data_average_property_type_social, aes(x = year_eval, y = mean)) + 
+  labs(
+    title = "Changes in Score of Social Housing over a Period of 5 Years",
+    x = "Year", 
+    y = "Score Evaluations in Percent",
+  )
+```
 
+```{r}
+#Graphing score by year of evaluation, Property type:TCHC
+#| echo: false
 
-data
+data_average_property_type_tchc <-
+  data |>
+  filter(PROPERTY_TYPE == "TCHC") |>
+  group_by(year_eval) |>
+  summarise(mean = mean(score / 100))
+
+data |>
+  filter(PROPERTY_TYPE == "TCHC")|>
+  ggplot(aes(x = year_eval, 
+             y = score / 100)) + 
+  scale_y_continuous(labels = percent_format(), 
+                      limits = c(0, 1)) +
+  geom_count(aes(color="red")) +
+  geom_line(data = data_average_property_type_tchc, aes(x = year_eval, y = mean)) + 
+  labs(
+    title = "Changes in Score of Social Housing over a Period of 5 Years",
+    x = "Year", 
+    y = "Score Evaluations in Percent",
+  )
+
 
 ```
+
+```{r}
+# Graphing score by year of evaluation: All Property types
+#| echo: false
+
+data_average_property_type <-
+  data |>
+  group_by(year_eval) |>
+  summarise(mean = mean(score / 100))
+
+data |>
+  ggplot(aes(x = year_eval, 
+             y = score / 100)) + 
+  scale_y_continuous(labels = percent_format(), 
+                      limits = c(0, 1)) +
+  geom_count(aes(color="red")) +
+  geom_line(data = data_average_property_type, aes(x = year_eval, y = mean)) + 
+  labs(
+    title = "Changes in Score of Social Housing over a Period of 5 Years",
+    x = "Year", 
+    y = "Score Evaluations in Percent",
+  )
+
+```
+
 
 
 ## References
