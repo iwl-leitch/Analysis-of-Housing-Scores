@@ -1,0 +1,81 @@
+---
+title: "Tutorial 2"
+author: "Iz Leitch"
+format: pdf
+---
+
+## Introduction
+
+This is the paper about rentsafe toronto housing scores
+
+## Running Code
+
+```{r}
+## Install libraries
+#install.packages("janitor")
+library(tidyverse)
+library(janitor)
+library(opendatatoronto)
+library(dplyr)
+library(scales)
+echo = FALSE
+ 
+# get package
+package <- show_package("4ef82789-e038-44ef-a478-a8f3590c3eb1")
+package
+ 
+# get all resources for this package
+resources <- list_package_resources("4ef82789-e038-44ef-a478-a8f3590c3eb1")
+ 
+# identify datastore resources; by default, Toronto Open Data sets datastore resource format to CSV for non-geospatial and GeoJSON for geospatial resources
+datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'))
+ 
+# load the first datastore resource as a sample
+data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+
+```
+```{r}
+options(repr.plot.width = 5, repr.plot.height =2)
+
+data|> ggplot(aes(x=c(year_built<-as.numeric(YEAR_BUILT)), y = c((score<-as.numeric(SCORE))/100), color = PROPERTY_TYPE)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  scale_x_continuous(breaks = c(1800, 1850, 1900, 1950, 2000, 2050)) +
+  geom_point()
+
+
+data|> ggplot(aes(x=c(ward<-as.numeric(WARD)), y = c((score<-as.numeric(SCORE))/100), color = PROPERTY_TYPE)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  geom_point()
+
+data|> ggplot(aes(x=c(ward<-as.numeric(WARD)), y = c(year_built<-as.numeric(YEAR_BUILT)), color = PROPERTY_TYPE)) +
+  geom_point()
+
+data|> 
+  filter(PROPERTY_TYPE == "SOCIAL HOUSING", WARD == "19") |>
+  ggplot(aes(x=c(year_built<-as.numeric(YEAR_BUILT)), y = c((score<-as.numeric(SCORE))/100), color = WARD)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  scale_x_continuous(breaks = c(1800, 1850, 1900, 1950, 2000, 2050)) +
+  geom_point()
+
+data|> 
+  filter(PROPERTY_TYPE == "SOCIAL HOUSING", WARD == "19") |>
+  ggplot(aes(x=c(year_eval<-as.numeric(YEAR_EVALUATED)), y = c((score<-as.numeric(SCORE))/100), color = WARD)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  geom_point()
+
+data|>
+  filter(WARD == "19") |>
+  ggplot(aes(x=c(year_built<-as.numeric(YEAR_BUILT)), y = c((score<-as.numeric(SCORE))/100), color = PROPERTY_TYPE)) + scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  scale_x_continuous(breaks = c(1800, 1850, 1900, 1950, 2000, 2050)) +
+  geom_point()
+
+
+data|>
+  arrange(SCORE)
+ # group_by(PROPERTY_TYPE)|> 
+  #mean(c(score<-as.integer(SCORE)))
+  class(data$PROPERTY_TYPE)
+  
+score<-as.numeric(data$SCORE)
+mean(score)
+```
+
+
+## References
+
