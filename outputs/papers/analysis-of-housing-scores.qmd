@@ -1,9 +1,7 @@
 ---
 title: "Biased RentSafe Toronto Housing Score Shows Improvement, but We Need to Do Better"
 author: "Iz Leitch"
-format: 
-  pdf:
-    documentclass: "article"
+format: pdf
 date: 2023-11-04
 date-format: long
 abstract: "Averages were taken of over eleven thousand apartment score from RentSafe Toronto, across three different Property Types, private, social and TCHC housing. The data reflects minor improvements on a 0-100 housing score over a five year period, but sampling size and institutional bias cast doubt on these results based on ever increasing instability in the Toronto Housing market. Without taking into consideration the opionions of the very people affected by this crisis, the data cannot truly be used to improve the situation that affects almost half a million Torontonians. "
