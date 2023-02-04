@@ -1,5 +1,5 @@
 ---
-title: "Biased RentSafe Toronto Housing Score Shows Improvement, but Fails to Account for Larger Issues"
+title: "Biased RentSafe Toronto Housing Score Shows Improvement, but We Need to Do Better"
 author: "Iz Leitch"
 format: 
   pdf:
@@ -13,7 +13,7 @@ thanks: " Code and data supporting this analysis are available at: https://githu
 ```{r}
 #| echo: false
 #### Preamble ####
-# Purpose: Read in data from the RentSafeTo Housing Evaluations and make graphs charting increase and decrease of score for the different property types by year
+# Purpose: Read in data from the RentSafeTO Housing Evaluations and make graphs charting increase and decrease of score for the different property types by year
 # Author: Iz Leitch
 # Email: i.leitch@mail.utoronto.ca
 # Date: 03 February 2023
@@ -35,9 +35,9 @@ library(scales)
 
 ## Introduction
 
-In Maslow's hierarchy of needs, a pyramid which depicts five tiers of fulfillment, shelter, comes right at the foundation. Shelter, along with food and water is one of the things that we simply can't live without, but not all shelter is created equal. Thanks to OpenDataToronto @citeOpenDataToronto, R @citeR, Tidyverse [@citeTidyverse], dplyr[@citeDplyr], janitor [@citeJanitor], ggplot2[@citeGgplot2],and scales [@citeScales] an investigation into how the city of Toronto treats its over 46% of Torontonians who rent as their primary means of achieving shelter can be launched [@citeTorontoAtAGlance].
+In Maslow's hierarchy of needs, a pyramid which depicts five tiers of fulfillment, shelter, comes right at the foundation. Shelter, along with food and water is one of the things that we simply can't live without, but not all shelter is created equal. Thanks to OpenDataToronto [@citeOpenDataToronto], R [@citeR], Tidyverse [@citeTidyverse], dplyr[@citeDplyr], janitor [@citeJanitor], ggplot2[@citeGgplot2],and scales [@citeScales] an investigation into how the city of Toronto treats its over 46% of Torontonians who rent as their primary means of achieving shelter can be conducted [@citeTorontoAtAGlance].
 
-Created in July of 2017 RentSafeTo claims to protect the interests of Toronto's large renting population. Now five years into that goal, data compiled by RentSafeTo can be graphed and patterns can be found: an increase in apartment score across all three property types, until 2019, and then a minor decline from there onwards. This report will first consider what the RentSafeTo data shows in terms of improvements and overall distributions of scores. Second, it will explore the biases of the RentSafeTo data. Lastly, it will discuss the impact of the limitations of the RentSafeTo data on Torontonians, and possible improvements for its data collection methods. 
+Created in July of 2017 RentSafeTO claims to protect the interests of Toronto's large renting population. Now five years into that goal, data compiled by RentSafeTO can be graphed and patterns can be found: an increase in apartment score across all three property types, until 2019, and then a minor decline from there onwards. This report will first consider what the RentSafeTO data shows in terms of improvements and overall distributions of scores. Second, it will explore the biases of the RentSafeTO data. Lastly, it will discuss the impact of the limitations of the RentSafeTO data on Torontonians, and possible improvements for its data collection methods. 
 
 
 ## Examining the Data
@@ -55,11 +55,13 @@ data <-
          year_eval = as.numeric(YEAR_EVALUATED),
          year_built = as.numeric(YEAR_BUILT))
 ```
-Data taken from @citeOpenDataToronto is broken down by three Property Types, Private, Social Housing and TCHC. The scores are taken from housing evaluations done by the inspectors out of 100, with below a 50 incurring further inspections. Starting with Property type we can see the beginning of what will be common themes across the data. In Fig. 1. Changes in Score of Private Housing over a period of 5 years, we take the mean of the Private Housing scores for each of the 5 years and then use a line the increase or decrease in average score to better measure change over time. The red dots then mark the upper and lower most limits of the scores for any given year, and the size correlates to the frequency, giving each year a clearer picture of the distribution of any given score. 
+Data taken from opendatatoronto [@citeOpenDataToronto] is broken down by three Property Types, Private, Social Housing and TCHC. The scores are taken from housing evaluations done by the inspectors out of 100, with below a 50 incurring further inspections. Starting with Property type we can see the beginning of what will be common themes across the data. 
 
-From this we can see that since the formation of RentSafe Toronto the score average shown here as the black line, has increased until 2019 before sliding back down again. 
+Private housing is self-explanatory, housing owned by private corporations or individuals instead of by the city or not-for-profits, and makes up the largest portion of the overall RentSafeTO dataset. In Fig. 1. Changes in Score of Private Housing over a period of 5 years, we take the mean of the Private Housing scores for each of the 5 years and then use a line the increase or decrease in average score to better measure change over time. The red dots then mark the upper and lower most limits of the scores for any given year, and the size correlates to the frequency, giving each year a clearer picture of the distribution of any given score. This will be the format of all the graphs charting housing score.  
 
-```{r, fig.cap="Min, max, and mean scores over time of Private Type Housing"}
+From this we can see that since the formation of RentSafe Toronto the score average shown here as the black line, has increased until 2019 before sliding back down again. With the max score increasing to 100% and then staying even and the minimum score going from 0 in 2017 to a high of between 25 and 50% before dropping back under 25% in 2021. The Private housing type has the widest distribution between max and minimum scores, and accounts for the majority of housing in RentSafeTO dataset. 
+
+```{r, fig.cap="Min, max, and mean scores over time of Private Type Housing", fig.height=4, fig.width = 8}
 #| echo: false
 #| warning: false
 #### Graphing score by Year, Property type: Private ####
@@ -99,14 +101,14 @@ data |>
   labs(
     title = "Changes in Score of Private Housing over a Period of 5 Years",
     x = "Year", 
-    y = "Score Evaluations in Percent",
-    color = ""
+    y = "Score Evaluations in Percent"
   )
   
 ```
+{{< pagebreak >}}
 
-In Fig. 2.  we see the scores for Social type housing. This includes 
-```{r, fig.cap="Min, max, and mean scores over time of Social Type Housing"}
+In Fig. 2.  we see the scores for Social type housing. This includes not-for-profit owned housing and is the second largest type overseen by RentSafeTO. This change in sample size accounts for the change in distribution, with less apartments to evaluate, statistically, it is less likely for them to have extreme outliers like the 0% evaulation in Private Housing. This also means that the scores for Social housing are higher than Private housing with the mean staying well above 75% from 2019 through 2021. At the same time this smaller sample size means the upper extreme of 100% is not reached in this sample group, instead reaching a peak in 2018 before decreasing until 2020 where it began to increase again. But as with Private housing the mean and min are connected, both increasing (albeit not at the same rate) until 2019, before decreasing.
+```{r, fig.cap="Min, max, and mean scores over time of Social Type Housing", fig.height=4, fig.width = 8}
 #| echo: false
 #| warning: false
 #### Graphing score by Year, Property type: Social Housing ####
@@ -146,12 +148,13 @@ data |>
   labs(
     title = "Changes in Score of Social Housing over a Period of 5 Years",
     x = "Year", 
-    y = "Score Evaluations in Percent",
+    y = "Score Evaluations in Percent"
   ) 
 ```
+{{< pagebreak >}}
 
-In Fig.3. we explore the aforementioned score changes with an eye toward TCHC housing. TCHC stands for Toronto Community Housing Corporation and includes 60,000 rental units over 2,100 buildings. They are kept to their goal of clean, safe, secure housing in part by the RentSafeTo evaluations. Yet while, TCHC housing scores  
-```{r, fig.cap="Min, max, and mean scores over time of TCHC Type Housing"}
+In Fig.3. we explore the aforementioned score changes with an eye toward TCHC housing. TCHC stands for Toronto Community Housing Corporation and includes 60,000 rental units over 2,100 buildings. They are kept to their goal of clean, safe, secure housing in part by the RentSafeTO evaluations. Yet while, TCHC housing scores are consistently lower than the Social and Private type means at under 75% they show slow but continued improvement over all 5 years. 
+```{r, fig.cap="Min, max, and mean scores over time of TCHC Type Housing", fig.height=4, fig.width = 8}
 #| echo: false
 #| warning: false
 #### Graphing score by year of evaluation, Property type:TCHC ####
@@ -197,8 +200,8 @@ data |>
 
 ```
 
-In Fig.4. tracking the min, max, and mean of all types simultaneously leads to a better understanding of housing scores as a whole. The gradual advance in score until 2019 can be seen, but also the change in minimum score echoing the mean, as it goes increases until 2019 and then is seen decreasing again, with the max showing a steady trend upward as a whole.
-```{r, fig.cap="Min, max, and mean scores over time for all Housing Types"}
+Lastly, Fig.4. which tracking the min, max, and mean of all types simultaneously, summarizes the housing scores as a whole. The gradual advance in score until 2019 can be seen, but also the change in minimum score echoing the mean, as it increases until 2019 and then is seen decreasing again, with the max showing a steady trend upward as a whole.
+```{r, fig.cap="Min, max, and mean scores over time for all Housing Types", fig.height=4, fig.width = 8}
 #| echo: false
 #| warning: false
 #### Graphing score by year of evaluation: All Property types ####
@@ -232,30 +235,35 @@ data |>
   geom_line(data = data_max_property_type_all, aes(x = year_eval, y = max))+
   geom_line(data = data_min_property_type_all, aes(x = year_eval, y = min))+
   labs(
-    title = "Changes in Score of all RentSafeTo Housing over a Period of 5 Years",
+    title = "Changes in Score of all RentSafeTO Housing over a Period of 5 Years",
     x = "Year", 
     y = "Score Evaluations in Percent",
   )
 
 ```
 
-Other housing related datasets exist though. In total OpenDataToronto has 43 datasets under the tag affordable housing, but they don't track as broadly as RentSafeTo. Most of the other datasets track issues in and around the topic of homelessness, such as shelter occupancy, food bank usage, and sexual health clinics. Others track data related to housing but not related to renting, such as head of household of physical area of parking lots. This leaves the RentSafeTo dataset as the most comprehensive dataset covering the topic of Housing quality for renters through the evaluation scores. 
+This pattern of increase until 2019 and then either decrease in the case of Private housing, leveling off for Social housing, and slow but gradual increase for TCHC housing is of particular interest because in 2019 the effectiveness of RentSafeTO seemed to be abysmal. According to Emily Mathieu in her 2019 article on RentSafeTO, the RentSafe program had been failing in their promise to look after Toronto Renters, but the data doesn't fully reflect that, instead it shows slow but noticeable improvement from 2017 to 2019 across all three categories [@citeTheStar]. Another external factor of note is that Mathieu's article states that in 2019 less than one-half of surveyed low to moderate income tenants even knew about the tenant advocacy group, ACORN, that played a large role in creating RentSafeTO, with 60% reporting units in need of repair and 34% with bed bug problems over the last two year, something that the RentSafeTO Housing score does not fully take into account [@citeTheStar].
+
+This increased interest lead to changes made in the Housing chapter which supports RentSafeTO to include "information on the RentSafeTO program, including contact information for 311" [@citeChapter354]. Perhaps then this decrease in score for Private and Social housing types is due to the RentSafeTO scoring system becoming more accurate as it is more capable of taking renters' complaints into account. 
+
+Other housing related datasets exist though. In total OpenDataToronto has 43 datasets under the tag affordable housing, but they don't track as broadly as RentSafeTO [@citeOpenDataToronto]. Most of the other datasets track issues in and around the topic of homelessness, such as shelter occupancy, food bank usage, and sexual health clinics. Others track data related to housing but not related to renting, such as head of household of physical area of parking lots. This leaves the RentSafeTO dataset as the most comprehensive dataset covering the topic of Housing quality for renters through the evaluation scores. 
 
 
-##Bias in the Data Set
+## Bias in the Data Set
 
 Of course, despite being the best available dataset on housing scores in Toronto at the moment, the RentSafeTO data isn't without biases, and when it comes to something as vital as understanding the way people live in our city, every bias must be carefully considered. Key ways the RentSafeTO data is biased would be through selection bias and observer bias. 
 
-Selection bias enters the picture with the very definition of who RentSafeTo exists to protect. In theory one might think that a group called RentSafeTo exists to protect all renters in the city of Toronto, but it only looks at people renting from buildings over three storeys tall or with over 10 units. For reference, most homes are only 2 storeys tall, and if broken up by a small time landlord have anywhere from one to 3 units. People renting under these kinds of conditions are then not considered under RentSafeTo when they are equally deserving of safe housing. The other aspect of selection bias is in how the scores are calculated. 
+Selection bias enters the picture with the very definition of who RentSafeTO exists to protect. In theory one might think that a group called RentSafeTO exists to protect all renters in the city of Toronto, but it only looks at people renting from buildings over three storeys tall or with over 10 units. For reference, most homes are only 2 storeys tall, and if broken up by a small time landlord have anywhere from one to 3 units. People renting under these kinds of conditions are then not considered under RentSafeTO when they are equally deserving of safe housing. The other aspect of selection bias is in how the scores are calculated. 
 
-Scores are calculated based on the following factors according to RentSafeTo: Amenities, Common Areas, Elevators, Exterior building, Exterior grounds, Garbage and recycling management, lighting, mandatory plans, mechanical systems, parking systems and garages, security systems, tenant notification board, and overall cleanliness. Notably this list fails to take into account the actual apartments' situation. Under the section Tenant notification board, it falls on the tenants to call in and explain their situation, not on the inspector to reach out and see how people are living. Additionally, the role of the inspector introduces another level of bias, observer bias. 
+Scores are calculated based on the following factors according to RentSafeTO: Amenities, Common Areas, Elevators, Exterior building, Exterior grounds, Garbage and recycling management, lighting, mandatory plans, mechanical systems, parking systems and garages, security systems, tenant notification board, and overall cleanliness[@citeRentSafeTOBuildingEval]. Notably this list fails to take into account the actual apartments' situation. Under the section Tenant notification board, it falls on the tenants to call in and explain their situation, not on the inspector to reach out and see how people are living.  Additionally, the role of the inspector introduces another level of bias, observer bias. 
 
-Part of the Tenant notification board is that tenants are to be informed of the inspector's arrival 3 days before they arrive, meaning the apartment complex also is aware before hand of the inspector. This gives apartments the opportunity to clean up and fix any common area issues in advance leading to a good score, which when high enough means the next evaluation comes three years later, long enough to let this slide into disarray in the intervening time. 
+Part of the Tenant notification board is that tenants are to be informed of the inspector's arrival 3 days before they arrive, meaning the apartment complex also is aware before hand of the inspector. This gives apartments the opportunity to clean up and fix any common area issues in advance leading to a good score, which when high enough means the next evaluation comes three years later[@citeRentSafeTOBuildingEval], long enough to let this slide into disarray in the intervening time. 
+
 
 ## Conclusions
 
 Designed after Toronto's DineSafe program, RentSafe Toronto simply doesn't live up to it's bigger brother. Where DineSafe accounts for every food and beverage serving establishment, RentSafe comes with built-in limitations as to who it can survey, and while these data points can reveal slow improvements overall, it fails to take a holistic view of Toronto's renting situation, and fails to put effort into truly understanding renter's situations. 
 
 
-
+{{< pagebreak >}}
 ## References
