@@ -20,6 +20,18 @@ simulated_data <-
       ), 
       size = 1000, 
       replace = TRUE
+    ),
+    #Gives each apartment a year the score was handed out
+    "Year" = sample(
+      x = c(
+        "2017", 
+        "2018",
+        "2019", 
+        "2020", 
+        "2021"
+      ), 
+      size = 1000, 
+      replace = TRUE
     )
   )
 
