@@ -1,11 +1,31 @@
 ---
-title: "Tutorial 2"
+title: "Biased RentSafe Toronto Housing Score Shows Improvement, but Fails to Account for Larger Issues"
 author: "Iz Leitch"
-format: pdf
+format: 
+  pdf:
+    documentclass: "article"
+date: 2023-11-04
+date-format: long
+abstract: "Averages were taken of over eleven thousand apartment score from RentSafe Toronto, across three different Property Types, private, social and TCHC housing. The data reflects minor improvements on a 0-100 housing score over a five year period, but sampling size and institutional bias cast doubt on these results based on ever increasing instability in the Toronto Housing market. Without taking into consideration the opionions of the very people affected by this crisis, the data cannot truly be used to improve the situation that affects almost half a million Torontonians. "
+bibliography: references.bib
+thanks: " Code and data supporting this analysis are available at: https://github.com/iwl-leitch/Analysis-of-Housing-Scores"
 ---
 ```{r}
+#| echo: false
+#### Preamble ####
+# Purpose: Read in data from the RentSafeTo Housing Evaluations and make graphs charting increase and decrease of score for the different property types by year
+# Author: Iz Leitch
+# Email: i.leitch@mail.utoronto.ca
+# Date: 03 February 2023
+# Prerequisites: -
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#### Workspace set-up ####
+
 #this loads libraries
-#|echo : FALSE
 library(tidyverse)
 library(janitor)
 library(opendatatoronto)
@@ -13,18 +33,18 @@ library(dplyr)
 library(scales)
 ```
 
-
 ## Introduction
 
-This is the paper about rentsafe toronto housing scores
+In Maslow's hierarchy of needs, a pyramid which depicts five tiers of fulfillment, shelter, comes right at the foundation. Shelter, along with food and water is one of the things that we simply can't live without, but not all shelter is created equal. Thanks to OpenDataToronto @citeOpenDataToronto, R @citeR, Tidyverse [@citeTidyverse], dplyr[@citeDplyr], janitor [@citeJanitor], ggplot2[@citeGgplot2],and scales [@citeScales] an investigation into how the city of Toronto treats its over 46% of Torontonians who rent as their primary means of achieving shelter can be launched [@citeTorontoAtAGlance].
+
+Created in July of 2017 RentSafeTo claims to protect the interests of Toronto's large renting population. Now five years into that goal, data compiled by RentSafeTo can be graphed and patterns can be found: an increase in apartment score across all three property types, until 2019, and then a minor decline from there onwards. This report will first consider what the RentSafeTo data shows in terms of improvements and overall distributions of scores. Second, it will explore the biases of the RentSafeTo data. Lastly, it will discuss the impact of the limitations of the RentSafeTo data on Torontonians, and possible improvements for its data collection methods. 
 
 
-
-## Running Code
+## Examining the Data
 
 ```{r}
+#| echo: false
 #this loads data from the raw data file
-#| echo: FALSE
 data <- 
   read.csv(here::here("inputs/data/raw_data.csv"))
 
@@ -35,17 +55,37 @@ data <-
          year_eval = as.numeric(YEAR_EVALUATED),
          year_built = as.numeric(YEAR_BUILT))
 ```
+Data taken from @citeOpenDataToronto is broken down by three Property Types, Private, Social Housing and TCHC. The scores are taken from housing evaluations done by the inspectors out of 100, with below a 50 incurring further inspections. Starting with Property type we can see the beginning of what will be common themes across the data. In Fig. 1. Changes in Score of Private Housing over a period of 5 years, we take the mean of the Private Housing scores for each of the 5 years and then use a line the increase or decrease in average score to better measure change over time. The red dots then mark the upper and lower most limits of the scores for any given year, and the size correlates to the frequency, giving each year a clearer picture of the distribution of any given score. 
 
-```{r}
-# Graphing score by Year, Property type: Private
+From this we can see that since the formation of RentSafe Toronto the score average shown here as the black line, has increased until 2019 before sliding back down again. 
+
+```{r, fig.cap="Min, max, and mean scores over time of Private Type Housing"}
 #| echo: false
+#| warning: false
+#### Graphing score by Year, Property type: Private ####
 
+#This takes the mean score of the Private Type by year
 data_average_property_type_private <-
   data |>
   filter(PROPERTY_TYPE == "PRIVATE") |>
   group_by(year_eval) |>
   summarise(mean = mean(score / 100))
 
+#This takes the max score of the Private Type by year
+data_max_property_type_private <-
+  data |>
+  filter(PROPERTY_TYPE == "PRIVATE") |>
+  group_by(year_eval) |>
+  summarise(max = max(score / 100))
+
+#This takes the min score of the Private Type by year
+data_min_property_type_private <-
+  data |>
+  filter(PROPERTY_TYPE == "PRIVATE") |>
+  group_by(year_eval) |>
+  summarise(min = min(score / 100))
+
+#This graphs all instances as count, and then the mean, max, and min as lines for the Private Type
 data |>
   filter(PROPERTY_TYPE == "PRIVATE")|>
   ggplot(aes(x = year_eval, 
@@ -54,6 +94,8 @@ data |>
                       limits = c(0, 1)) +
   geom_count(aes(color = "red")) +
   geom_line(data = data_average_property_type_private, aes(x = year_eval, y = mean)) + 
+  geom_line(data = data_max_property_type_private, aes(x = year_eval, y = max))+
+  geom_line(data = data_min_property_type_private, aes(x = year_eval, y = min))+
   labs(
     title = "Changes in Score of Private Housing over a Period of 5 Years",
     x = "Year", 
@@ -62,16 +104,35 @@ data |>
   )
   
 ```
-```{r}
-# Graphing score by Year, Property type: Social Housing
-#| echo: false
 
+In Fig. 2.  we see the scores for Social type housing. This includes 
+```{r, fig.cap="Min, max, and mean scores over time of Social Type Housing"}
+#| echo: false
+#| warning: false
+#### Graphing score by Year, Property type: Social Housing ####
+
+#This takes the mean score of the Social Housing Type by year
 data_average_property_type_social <-
   data |>
   filter(PROPERTY_TYPE == "SOCIAL HOUSING") |>
   group_by(year_eval) |>
   summarise(mean = mean(score / 100))
 
+#This takes the max score of the Social Housing Type by year
+data_max_property_type_social <-
+  data |>
+  filter(PROPERTY_TYPE == "SOCIAL HOUSING") |>
+  group_by(year_eval) |>
+  summarise(max = max(score / 100))
+
+#This takes the min score of the Social Housing Type by year
+data_min_property_type_social <-
+  data |>
+  filter(PROPERTY_TYPE == "SOCIAL HOUSING") |>
+  group_by(year_eval) |>
+  summarise(min = min(score / 100))
+
+#This graphs all instances as count, and then the mean, max, and min as lines for the Social Housing Type
 data |>
   filter(PROPERTY_TYPE == "SOCIAL HOUSING")|>
   ggplot(aes(x = year_eval, 
@@ -80,23 +141,43 @@ data |>
                       limits = c(0, 1)) +
   geom_count(aes(color="red")) +
   geom_line(data = data_average_property_type_social, aes(x = year_eval, y = mean)) + 
+  geom_line(data = data_max_property_type_social, aes(x = year_eval, y = max))+
+  geom_line(data = data_min_property_type_social, aes(x = year_eval, y = min))+
   labs(
     title = "Changes in Score of Social Housing over a Period of 5 Years",
     x = "Year", 
     y = "Score Evaluations in Percent",
-  )
+  ) 
 ```
 
-```{r}
-#Graphing score by year of evaluation, Property type:TCHC
+In Fig.3. we explore the aforementioned score changes with an eye toward TCHC housing. TCHC stands for Toronto Community Housing Corporation and includes 60,000 rental units over 2,100 buildings. They are kept to their goal of clean, safe, secure housing in part by the RentSafeTo evaluations. Yet while, TCHC housing scores  
+```{r, fig.cap="Min, max, and mean scores over time of TCHC Type Housing"}
 #| echo: false
+#| warning: false
+#### Graphing score by year of evaluation, Property type:TCHC ####
 
+#This takes the mean score of the TCHC Type by year
 data_average_property_type_tchc <-
   data |>
   filter(PROPERTY_TYPE == "TCHC") |>
   group_by(year_eval) |>
   summarise(mean = mean(score / 100))
 
+#This takes the max score of the TCHC Type by year
+data_max_property_type_tchc <-
+  data |>
+  filter(PROPERTY_TYPE == "TCHC") |>
+  group_by(year_eval) |>
+  summarise(max = max(score / 100))
+
+#This takes the min score of the TCHC Type by year
+data_min_property_type_tchc <-
+  data |>
+  filter(PROPERTY_TYPE == "TCHC") |>
+  group_by(year_eval) |>
+  summarise(min = min(score / 100))
+
+#This graphs all instances as count, and then the mean, max, and min as lines for the TCHC Type
 data |>
   filter(PROPERTY_TYPE == "TCHC")|>
   ggplot(aes(x = year_eval, 
@@ -105,8 +186,10 @@ data |>
                       limits = c(0, 1)) +
   geom_count(aes(color="red")) +
   geom_line(data = data_average_property_type_tchc, aes(x = year_eval, y = mean)) + 
+  geom_line(data = data_max_property_type_tchc, aes(x = year_eval, y = max))+
+  geom_line(data = data_min_property_type_tchc, aes(x = year_eval, y = min))+
   labs(
-    title = "Changes in Score of Social Housing over a Period of 5 Years",
+    title = "Changes in Score of TCHC Housing over a Period of 5 Years",
     x = "Year", 
     y = "Score Evaluations in Percent",
   )
@@ -114,31 +197,65 @@ data |>
 
 ```
 
-```{r}
-# Graphing score by year of evaluation: All Property types
+In Fig.4. tracking the min, max, and mean of all types simultaneously leads to a better understanding of housing scores as a whole. The gradual advance in score until 2019 can be seen, but also the change in minimum score echoing the mean, as it goes increases until 2019 and then is seen decreasing again, with the max showing a steady trend upward as a whole.
+```{r, fig.cap="Min, max, and mean scores over time for all Housing Types"}
 #| echo: false
+#| warning: false
+#### Graphing score by year of evaluation: All Property types ####
 
-data_average_property_type <-
+#This takes the mean score of all Types by year
+data_average_property_type_all <-
   data |>
   group_by(year_eval) |>
   summarise(mean = mean(score / 100))
 
+#This takes the max score of all Types by year
+data_max_property_type_all <-
+  data |>
+  group_by(year_eval) |>
+  summarise(max = max(score / 100))
+
+#This takes the min score of all Types by year
+data_min_property_type_all <-
+  data |>
+  group_by(year_eval) |>
+  summarise(min = min(score / 100))
+
+#This graphs all instances as count, and then the mean, max, and min as lines for the all Types
 data |>
   ggplot(aes(x = year_eval, 
              y = score / 100)) + 
   scale_y_continuous(labels = percent_format(), 
                       limits = c(0, 1)) +
   geom_count(aes(color="red")) +
-  geom_line(data = data_average_property_type, aes(x = year_eval, y = mean)) + 
+  geom_line(data = data_average_property_type_all, aes(x = year_eval, y = mean)) + 
+  geom_line(data = data_max_property_type_all, aes(x = year_eval, y = max))+
+  geom_line(data = data_min_property_type_all, aes(x = year_eval, y = min))+
   labs(
-    title = "Changes in Score of Social Housing over a Period of 5 Years",
+    title = "Changes in Score of all RentSafeTo Housing over a Period of 5 Years",
     x = "Year", 
     y = "Score Evaluations in Percent",
   )
 
 ```
 
+Other housing related datasets exist though. In total OpenDataToronto has 43 datasets under the tag affordable housing, but they don't track as broadly as RentSafeTo. Most of the other datasets track issues in and around the topic of homelessness, such as shelter occupancy, food bank usage, and sexual health clinics. Others track data related to housing but not related to renting, such as head of household of physical area of parking lots. This leaves the RentSafeTo dataset as the most comprehensive dataset covering the topic of Housing quality for renters through the evaluation scores. 
+
+
+##Bias in the Data Set
+
+Of course, despite being the best available dataset on housing scores in Toronto at the moment, the RentSafeTO data isn't without biases, and when it comes to something as vital as understanding the way people live in our city, every bias must be carefully considered. Key ways the RentSafeTO data is biased would be through selection bias and observer bias. 
+
+Selection bias enters the picture with the very definition of who RentSafeTo exists to protect. In theory one might think that a group called RentSafeTo exists to protect all renters in the city of Toronto, but it only looks at people renting from buildings over three storeys tall or with over 10 units. For reference, most homes are only 2 storeys tall, and if broken up by a small time landlord have anywhere from one to 3 units. People renting under these kinds of conditions are then not considered under RentSafeTo when they are equally deserving of safe housing. The other aspect of selection bias is in how the scores are calculated. 
+
+Scores are calculated based on the following factors according to RentSafeTo: Amenities, Common Areas, Elevators, Exterior building, Exterior grounds, Garbage and recycling management, lighting, mandatory plans, mechanical systems, parking systems and garages, security systems, tenant notification board, and overall cleanliness. Notably this list fails to take into account the actual apartments' situation. Under the section Tenant notification board, it falls on the tenants to call in and explain their situation, not on the inspector to reach out and see how people are living. Additionally, the role of the inspector introduces another level of bias, observer bias. 
+
+Part of the Tenant notification board is that tenants are to be informed of the inspector's arrival 3 days before they arrive, meaning the apartment complex also is aware before hand of the inspector. This gives apartments the opportunity to clean up and fix any common area issues in advance leading to a good score, which when high enough means the next evaluation comes three years later, long enough to let this slide into disarray in the intervening time. 
+
+## Conclusions
+
+Designed after Toronto's DineSafe program, RentSafe Toronto simply doesn't live up to it's bigger brother. Where DineSafe accounts for every food and beverage serving establishment, RentSafe comes with built-in limitations as to who it can survey, and while these data points can reveal slow improvements overall, it fails to take a holistic view of Toronto's renting situation, and fails to put effort into truly understanding renter's situations. 
+
 
 
 ## References
-
